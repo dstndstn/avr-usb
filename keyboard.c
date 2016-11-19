@@ -1,11 +1,15 @@
 #include <avr/io.h>
+#include <util/delay.h>
+
 #include "UsbKeyboard.h"
 
 void main() {
     // USB keyboard init
-    PORTD = 0;
-    DDRD |= ~USBMASK;
+    PORTC = 0;
+    DDRC |= ~USBMASK;
 
+	DDRB = 0x1;
+	
     cli();
     usbDeviceDisconnect();
     usbDeviceConnect();
@@ -17,9 +21,14 @@ void main() {
     memset(reportBuffer, 0, sizeof(reportBuffer));      
     usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 
-
     for (;;) {
-        usbPoll();
+
+		PORTB = 1;
+		_delay_ms(250);
+		PORTB = 0;
+		_delay_ms(250);
+
+		usbPoll();
 
         send_usb(KEY_H);
         send_usb(KEY_E);
