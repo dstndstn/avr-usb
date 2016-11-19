@@ -1,15 +1,22 @@
+F_CPU := 12000000UL
+MCU_TARGET     := atmega168
 
-all:
-	(cd v-usb && make F_CPU=12000000)
-	$(MAKE) keyboard.hex
-
+all: keyboard.hex
 
 USB = v-usb/usbdrv/usbdrv.o v-usb/usbdrv/usbdrvasm.o v-usb/usbdrv/oddebug.o
 
+CC := avr-gcc
+
 # UsbKeyboard.h: from vusb-for-arduino-005/libraries/UsbKeyboard/UsbKeyboard.h
 
-%.o: %.c
-	avr-gcc -c $<
+CFLAGS := -DF_CPU=$(F_CPU) -Iv-usb/usbdrv -I. -mmcu=$(MCU_TARGET)
+LDFLAGS       := -Wl,-Map,$(PRG).map
 
-keyboard.hex: keyboard.c $(USB)
-	avr-gcc -Iv-usb/usbdrv -c $<
+%.o: %.c
+	avr-gcc $(CFLAGS) -c $< -o $@
+
+%.o: %.S
+	avr-gcc $(CFLAGS) -c $< -o $@
+
+keyboard.hex: keyboard.o $(USB)
+	avr-gcc -o $@ $^

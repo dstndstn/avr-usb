@@ -26,7 +26,9 @@ static uchar    idleRate;           // in 4 ms units
  * Redundant entries (such as LOGICAL_MINIMUM and USAGE_PAGE) have been omitted
  * for the second INPUT item.
  */
-PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
+//char usbHidReportDescriptor[35] = { /* USB report descriptor */
+PROGMEM const
+char usbHidReportDescriptor[] = { /* USB report descriptor */
   0x05, 0x01,                    // USAGE_PAGE (Generic Desktop) 
   0x09, 0x06,                    // USAGE (Keyboard) 
   0xa1, 0x01,                    // COLLECTION (Application) 
@@ -115,12 +117,35 @@ PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
 
 #define KEY_ARROW_LEFT 0x50
 
+uchar reportBuffer[4];    // buffer for HID reports [ 1 modifier byte + (le
+
+void send_usb(byte keyStroke) { //, byte modifiers) {
+    byte modifiers = 0;
+    // Note: We wait until we can send keystroke
+    //       so we know the previous keystroke was
+    //       sent.
+    while (!usbInterruptIsReady());
+
+    memset(reportBuffer, 0, sizeof(reportBuffer));
+
+    reportBuffer[0] = modifiers;
+    reportBuffer[1] = keyStroke;
+        
+    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+
+    while (!usbInterruptIsReady());
+      
+    // This stops endlessly repeating keystrokes:
+    memset(reportBuffer, 0, sizeof(reportBuffer));      
+    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+}
+
   // USB_PUBLIC uchar usbFunctionSetup
 uchar usbFunctionSetup(uchar data[8]) 
   {
     usbRequest_t    *rq = (usbRequest_t *)((void *)data);
 
-    usbMsgPtr = UsbKeyboard.reportBuffer; //
+    usbMsgPtr = reportBuffer; //
     if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){
       /* class request type */
 
