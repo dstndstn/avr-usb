@@ -12,18 +12,11 @@
 
 #include "usbdrv.h"
 
-// TODO: Work around Arduino 12 issues better.
-//#include <WConstants.h>
-//#undef int()
-
 typedef uint8_t byte;
-
 
 #define BUFFER_SIZE 4 // Minimum of 2: 1 for modifiers + 1 for keystroke 
 
-
 static uchar    idleRate;           // in 4 ms units 
-
 
 /* We use a simplifed keyboard report descriptor which does not support the
  * boot protocol. We don't allow setting status LEDs and but we do allow
@@ -53,8 +46,6 @@ PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
   0x81, 0x00,                    //   INPUT (Data,Ary,Abs) 
   0xc0                           // END_COLLECTION 
 };
-
-
 
 /* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
  * 10 Keyboard/Keypad Page for more codes.
@@ -124,73 +115,6 @@ PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
 
 #define KEY_ARROW_LEFT 0x50
 
-
-class UsbKeyboardDevice {
- public:
-  UsbKeyboardDevice () {
-    PORTD = 0; // TODO: Only for USB pins?
-    DDRD |= ~USBMASK;
-
-    cli();
-    usbDeviceDisconnect();
-    usbDeviceConnect();
-
-
-    usbInit();
-      
-    sei();
-
-    // TODO: Remove the next two lines once we fix
-    //       missing first keystroke bug properly.
-    memset(reportBuffer, 0, sizeof(reportBuffer));      
-    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-  }
-    
-  void update() {
-    usbPoll();
-  }
-    
-  void sendKeyStroke(byte keyStroke) {
-    sendKeyStroke(keyStroke, 0);
-  }
-
-  void sendKeyStroke(byte keyStroke, byte modifiers) {
-      
-    while (!usbInterruptIsReady()) {
-      // Note: We wait until we can send keystroke
-      //       so we know the previous keystroke was
-      //       sent.
-    }
-      
-    memset(reportBuffer, 0, sizeof(reportBuffer));
-
-    reportBuffer[0] = modifiers;
-    reportBuffer[1] = keyStroke;
-        
-    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-
-    while (!usbInterruptIsReady()) {
-      // Note: We wait until we can send keystroke
-      //       so we know the previous keystroke was
-      //       sent.
-    }
-      
-    // This stops endlessly repeating keystrokes:
-    memset(reportBuffer, 0, sizeof(reportBuffer));      
-    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
-
-  }
-    
-  //private: TODO: Make friend?
-  uchar    reportBuffer[4];    // buffer for HID reports [ 1 modifier byte + (len-1) key strokes]
-
-};
-
-UsbKeyboardDevice UsbKeyboard = UsbKeyboardDevice();
-
-#ifdef __cplusplus
-extern "C"{
-#endif 
   // USB_PUBLIC uchar usbFunctionSetup
 uchar usbFunctionSetup(uchar data[8]) 
   {
@@ -219,9 +143,5 @@ uchar usbFunctionSetup(uchar data[8])
     }
     return 0;
   }
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
 
 #endif // __UsbKeyboard_h__
