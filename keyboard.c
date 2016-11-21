@@ -21,28 +21,41 @@ void main() {
     memset(reportBuffer, 0, sizeof(reportBuffer));      
     usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 
-    for (;;) {
+    int i;
 
-		PORTB = 1;
-		_delay_ms(250);
-		PORTB = 0;
-		_delay_ms(250);
+    PORTB = 1;
+    for (i=0; i<40; i++) {
+        // Must be called ~ every 50 ms
+        usbPoll();
+        _delay_ms(25);
+    }
+    PORTB = 0;
 
-		usbPoll();
+    for (i=0;; i++) {
 
-        send_usb(KEY_H);
-        send_usb(KEY_E);
-        send_usb(KEY_L);
-        send_usb(KEY_L);
-        send_usb(KEY_O);
+        if (i % 256 == 0) {
+            PORTB = 1;
+        } else if (i % 256 == 128) {
+            PORTB = 0;
+        }
+        // Must be called ~ every 50 ms
+        usbPoll();
 
-        send_usb(KEY_SPACE);
+        _delay_ms(25);
 
-        send_usb(KEY_W);
-        send_usb(KEY_O);
-        send_usb(KEY_R);
-        send_usb(KEY_L);
-        send_usb(KEY_D);
-        send_usb(KEY_ENTER);
+        if (i % 1024 == 0) {
+            send_usb(KEY_H);
+            send_usb(KEY_E);
+            send_usb(KEY_L);
+            send_usb(KEY_L);
+            send_usb(KEY_O);
+            send_usb(KEY_SPACE);
+            send_usb(KEY_W);
+            send_usb(KEY_O);
+            send_usb(KEY_R);
+            send_usb(KEY_L);
+            send_usb(KEY_D);
+            send_usb(KEY_ENTER);
+        }
     }
 }
