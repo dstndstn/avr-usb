@@ -8,14 +8,14 @@ void main() {
     PORTC = 0;
     DDRC |= ~USBMASK;
 
-	DDRB = 0x1;
-	
+    DDRB = 0x3;
+
     cli();
     usbDeviceDisconnect();
     usbDeviceConnect();
     usbInit();
     sei();
-    
+
     // TODO: Remove the next two lines once we fix
     //       missing first keystroke bug properly.
     memset(reportBuffer, 0, sizeof(reportBuffer));      
@@ -33,9 +33,9 @@ void main() {
 
     for (i=0;; i++) {
 
-        if (i % 256 == 0) {
-            PORTB = 1;
-        } else if (i % 256 == 128) {
+        if (i % 64 == 0) {
+            PORTB = 3;
+        } else if (i % 64 == 32) {
             PORTB = 0;
         }
         // Must be called ~ every 50 ms
@@ -43,7 +43,7 @@ void main() {
 
         _delay_ms(25);
 
-        if (i % 1024 == 0) {
+        if (i % 32 == 0) {
             send_usb(KEY_H);
             send_usb(KEY_E);
             send_usb(KEY_L);

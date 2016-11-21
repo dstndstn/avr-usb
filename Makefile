@@ -9,9 +9,9 @@ MCU_TARGET     := atmega168
 # Use minimal vfprintf implementation.
 #LDFLAGS += -Wl,-u,vfprintf -lprintf_min
 # Use full floating-point vfprintf implementation.
-LDFLAGS += -Wl,-u,vfprintf -lprintf_flt -lm
+#LDFLAGS += -Wl,-u,vfprintf -lprintf_flt -lm
 # Use minimal vscanf implementation.
-LDFLAGS += -Wl,-u,vfscanf -lscanf_min -lm
+#LDFLAGS += -Wl,-u,vfscanf -lscanf_min -lm
 
 OBJCOPY        = avr-objcopy
 OBJDUMP        = avr-objdump
