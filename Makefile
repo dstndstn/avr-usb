@@ -3,8 +3,6 @@
 # To hit RESET:
 #  avrdude -p m168 -c bsd -E noreset
 
-PRG            := charger
-
 F_CPU := 12000000UL
 MCU_TARGET     := atmega168
 
@@ -38,8 +36,7 @@ reset:
 
 # v-usb: git clone https://github.com/obdev/v-usb.git
 
-CFLAGS := -DF_CPU=$(F_CPU) -Iv-usb/usbdrv -I. -mmcu=$(MCU_TARGET)
-#LDFLAGS       := -Wl,-Map,$(PRG).map
+CFLAGS := -O2 -DF_CPU=$(F_CPU) -Iv-usb/usbdrv -I. -mmcu=$(MCU_TARGET)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
