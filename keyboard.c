@@ -1,15 +1,38 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "v-usb/usbdrv/usbdrv.c"
+
 #include "UsbKeyboard.h"
+
+USB_PUBLIC usbMsgLen_t usbFunctionDescriptor(struct usbRequest *rq) {
+	return 0;
+}
 
 void main() {
     // USB keyboard init
-    PORTC = 0;
-    DDRC |= ~USBMASK;
 
+	// USB D+,D- on port D
+	PORTD = 0;
+    DDRD |= ~USBMASK;
+
+	// USB pull-up for device reset on port C 5
+	PORTC = 0;
+	DDRC  = 0;
+
+	// port B for blinkenlights
     DDRB = 0x3;
 
+	/*
+	PORTB = 1;
+	_delay_ms(250);
+	_delay_ms(250);
+	PORTB = 0;
+	_delay_ms(250);
+	_delay_ms(250);
+	PORTB = 1;
+	 */
+	
     cli();
     usbDeviceDisconnect();
     usbDeviceConnect();
@@ -18,19 +41,21 @@ void main() {
 
     // TODO: Remove the next two lines once we fix
     //       missing first keystroke bug properly.
-    memset(reportBuffer, 0, sizeof(reportBuffer));      
-    usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
+    //memset(reportBuffer, 0, sizeof(reportBuffer));      
+    //usbSetInterrupt(reportBuffer, sizeof(reportBuffer));
 
     int i;
 
-    PORTB = 1;
-    for (i=0; i<40; i++) {
-        // Must be called ~ every 50 ms
-        usbPoll();
-        _delay_ms(25);
-    }
-    PORTB = 0;
-
+	/*
+	 PORTB = 1;
+	 for (i=0; i<40; i++) {
+	 // Must be called ~ every 50 ms
+	 usbPoll();
+	 _delay_ms(25);
+	 }
+	 PORTB = 0;
+	 */
+	
     for (i=0;; i++) {
 
         if (i % 64 == 0) {
@@ -40,7 +65,8 @@ void main() {
         }
         // Must be called ~ every 50 ms
         usbPoll();
-
+		PORTB = 2;
+		
         _delay_ms(25);
 
         if (i % 32 == 0) {

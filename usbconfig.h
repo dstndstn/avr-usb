@@ -26,7 +26,7 @@ section at the end of this file).
 
 /* ---------------------------- Hardware Config ---------------------------- */
 
-#define USB_CFG_IOPORTNAME      C
+#define USB_CFG_IOPORTNAME      D
 /* This is the port where the USB bus is connected. When you configure it to
  * "B", the registers PORTB, PINB and DDRB will be used.
  */
@@ -282,6 +282,9 @@ section at the end of this file).
  */
 
 /* #define USB_PUBLIC static */
+// dstn
+#define USB_PUBLIC static
+
 /* Use the define above if you #include usbdrv.c instead of linking against it.
  * This technique saves a couple of bytes in flash memory.
  */
@@ -364,7 +367,7 @@ section at the end of this file).
 /* #define USB_INTR_ENABLE_BIT     INT0 */
 /* #define USB_INTR_PENDING        GIFR */
 /* #define USB_INTR_PENDING_BIT    INTF0 */
-/* #define USB_INTR_VECTOR         SIG_INTERRUPT0 */
+/*#define USB_INTR_VECTOR         SIG_INTERRUPT0 */
 
 #define USB_INTR_VECTOR INT0_vect
 
